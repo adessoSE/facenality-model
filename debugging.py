@@ -18,6 +18,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 
 LOAD_WEIGHTS = True
 WEIGHTS_NAME = "facenality_weights2.h5"
+IMAGE_SIZE = 224
 
 # Reset Keras Session
 
@@ -40,7 +41,6 @@ def import_data():
 def load_train_data(y_with_id, image_size=224, image_path="dataset/all/neutral/"):
     x = []
 
-    print('Read train images')
     for i in y_with_id.id:
         path = image_path + str(i) + ".jpg"
         x.append(read_img(path, image_size))
@@ -116,6 +116,44 @@ def predict(model, y):
     print("y_test: ", y[45])
 
 
+def predict_batch(model, image_path="dataset/predict/"):
+    # READ DATA
+    start = 179
+    end = 189
+
+    X_test = []
+
+    for i in range(start, end, 1):
+        if i == 183:
+            continue
+        path = image_path + str(i) + ".jpg"
+        image = read_img(path, IMAGE_SIZE)
+        X_test.append(image)
+
+    X_test = np.array(X_test)
+    y_test_id = pd.read_json("dataset/predict.json")
+    y_test = pd.read_json("dataset/predict.json").iloc[:, 0].values
+    y_test = y_test.tolist()
+
+    # PREDICT DATA
+    y_pred_detailed = model.predict(X_test)
+    y_pred = []
+    n = 0
+
+    for array in y_pred_detailed:
+        temp = [] 
+        for i in array:
+            temp.append(round(i, 1))
+        y_pred.append(temp)
+
+        print("\n")
+        print("ID: ", y_test_id.iloc[n].id)
+        print("y_test", n, " : ", y_test[n])
+        print("y_pred", n, " : ", temp)
+        print("\n")
+        n += 1
+
+
 if __name__ == "__main__":
     y, y_with_id = import_data()
     y = y.tolist()
@@ -124,4 +162,4 @@ if __name__ == "__main__":
     reset_keras()
     model = train_model()
 
-    predict(model, y)
+    predict_batch(model)
