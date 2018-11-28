@@ -1,5 +1,12 @@
+# Using CPU if commented
+#import os
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 import numpy as np
 import pandas as pd
+
+import gc
+from keras.backend.tensorflow_backend import set_session, clear_session, get_session
 
 from sklearn.cross_validation import train_test_split
 from keras.preprocessing import image
@@ -7,6 +14,22 @@ from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras.optimizers import Adadelta
 from sklearn.metrics import confusion_matrix, classification_report
+
+
+LOAD_WEIGHTS = True
+WEIGHTS_NAME = "facenality_weights2.h5"
+
+# Reset Keras Session
+
+
+def reset_keras():
+    sess = get_session()
+    clear_session()
+    sess.close()
+
+    # if it's done something you should see a number being outputted
+    print("\nGarbage Collector: ", gc.collect())
+
 
 def import_data():
     y_with_id = pd.read_json("dataset/all.json")
@@ -44,7 +67,7 @@ def create_model(image_size=224):
 
     for i in range(number_of_layers):
         model.add(Dense(units=14, kernel_initializer="uniform",
-                    activation="relu", input_dim=x.shape[1]))
+                        activation="relu", input_dim=x.shape[1]))
 
     model.add(Dense(16, activation="linear"))
 
@@ -64,41 +87,41 @@ def train_model(batch_size=30, nb_epoch=20):
         x, y, test_size=0.2, random_state=0)
 
     model = create_model()
-    #model.fit(X_train, y_train, batch_size=batch_size, epochs=nb_epoch, verbose=1, validation_data=(X_test, y_test))
-    model.fit(X_train, y_train, epochs=100, batch_size=50)
+
+    if LOAD_WEIGHTS:
+        model.load_weights(WEIGHTS_NAME)
+    else:
+        model.fit(X_train, y_train, epochs=100, batch_size=50)
+        model.save_weights(WEIGHTS_NAME)
 
     # evaluate the model
     scores = model.evaluate(X_test, y_test)
-    print(scores)
+    print("Evaluation score: ", scores)
 
     return model
 
 
 def predict(model, y):
     X_test = read_img("dataset/test/neutral/93.jpg", 224)
-    X_test = np.expand_dims(X_test, axis = 0)
+    X_test = np.expand_dims(X_test, axis=0)
 
     y_pred_detailed = model.predict(X_test)
+    y_pred_detailed = y_pred_detailed[0]
     y_pred = []
 
-    #for i in y_pred_detailed:
-    #    y_pred.append(round(i, 1))
-    
-    print("y_pred: ", y_pred_detailed)
+    for i in y_pred_detailed:
+        y_pred.append(round(i, 1))
+
+    print("y_pred: ", y_pred)
     print("y_test: ", y[45])
-    #cm = confusion_matrix(y_test, y_pred)
-    #print(classification_report(y_test, y_pred))
 
 
 if __name__ == "__main__":
     y, y_with_id = import_data()
     y = y.tolist()
-
-    a = np.array(y)
     x = load_train_data(y_with_id)
-    # print(x)
-    x1 = x[0]
-    x1 = np.expand_dims(x1, axis=0)
 
+    reset_keras()
     model = train_model()
+
     predict(model, y)
