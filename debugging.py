@@ -17,8 +17,10 @@ from sklearn.metrics import confusion_matrix, classification_report
 
 
 LOAD_WEIGHTS = False
-WEIGHTS_NAME = "facenality_weights-random-2.h5"
-IMAGE_SIZE = 520
+WEIGHTS_NAME = "facenality_weights-neutral-cropped.h5"
+IMAGE_SIZE = 224
+
+
 
 # Reset Keras Session
 
@@ -38,7 +40,7 @@ def import_data():
     return y, y_with_id
 
 
-def load_train_data(y_with_id, image_size=IMAGE_SIZE, image_path="dataset/all/random/"):
+def load_train_data(y_with_id, image_size=IMAGE_SIZE, image_path="dataset/all-cropped/neutral/"):
     x = []
 
     for i in y_with_id.id:
@@ -66,8 +68,10 @@ def create_model(image_size=IMAGE_SIZE):
     number_of_layers = 16
 
     for i in range(number_of_layers):
-        model.add(Dense(units=14, kernel_initializer="uniform",
+        model.add(Dense(units=2, kernel_initializer="uniform",
                         activation="relu", input_dim=x.shape[1]))
+        if number_of_layers == 8:
+            model.add(Dropout(0.2))
 
     model.add(Dense(16, activation="linear"))
 
@@ -91,7 +95,7 @@ def train_model(batch_size=30, nb_epoch=20):
     if LOAD_WEIGHTS:
         model.load_weights(WEIGHTS_NAME)
     else:
-        model.fit(X_train, y_train, epochs=20, batch_size=20)
+        model.fit(X_train, y_train, epochs=500, batch_size=40)
         model.save_weights(WEIGHTS_NAME)
 
     # evaluate the model
