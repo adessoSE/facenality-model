@@ -16,9 +16,11 @@ from keras.optimizers import Adadelta
 from sklearn.metrics import confusion_matrix, classification_report
 
 
-LOAD_WEIGHTS = True
-WEIGHTS_NAME = "facenality_weights2.h5"
+LOAD_WEIGHTS = False
+WEIGHTS_NAME = "facenality_weights-neutral-cropped.h5"
 IMAGE_SIZE = 224
+
+
 
 # Reset Keras Session
 
@@ -38,7 +40,7 @@ def import_data():
     return y, y_with_id
 
 
-def load_train_data(y_with_id, image_size=224, image_path="dataset/all/neutral/"):
+def load_train_data(y_with_id, image_size=IMAGE_SIZE, image_path="dataset/all-cropped/neutral/"):
     x = []
 
     for i in y_with_id.id:
@@ -49,13 +51,13 @@ def load_train_data(y_with_id, image_size=224, image_path="dataset/all/neutral/"
     return x
 
 
-def read_img(path, image_size):
+def read_img(path, image_size=IMAGE_SIZE):
     img = image.load_img(path, target_size=(image_size, image_size))
     #img = np.expand_dims(img, axis = 0)
     return image.img_to_array(img)
 
 
-def create_model(image_size=224):
+def create_model(image_size=IMAGE_SIZE):
     model = Sequential()
 
     model.add(Conv2D(32, (3, 3), input_shape=(
@@ -66,8 +68,10 @@ def create_model(image_size=224):
     number_of_layers = 16
 
     for i in range(number_of_layers):
-        model.add(Dense(units=14, kernel_initializer="uniform",
+        model.add(Dense(units=2, kernel_initializer="uniform",
                         activation="relu", input_dim=x.shape[1]))
+        if number_of_layers == 8:
+            model.add(Dropout(0.2))
 
     model.add(Dense(16, activation="linear"))
 
@@ -91,7 +95,7 @@ def train_model(batch_size=30, nb_epoch=20):
     if LOAD_WEIGHTS:
         model.load_weights(WEIGHTS_NAME)
     else:
-        model.fit(X_train, y_train, epochs=100, batch_size=50)
+        model.fit(X_train, y_train, epochs=500, batch_size=40)
         model.save_weights(WEIGHTS_NAME)
 
     # evaluate the model
@@ -102,7 +106,7 @@ def train_model(batch_size=30, nb_epoch=20):
 
 
 def predict(model, y):
-    X_test = read_img("dataset/test/neutral/93.jpg", 224)
+    X_test = read_img("dataset/test/neutral/93.jpg", IMAGE_SIZE)
     X_test = np.expand_dims(X_test, axis=0)
 
     y_pred_detailed = model.predict(X_test)
