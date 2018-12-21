@@ -2,3 +2,5 @@
 dataset/
 
 *.h5
+
+\.idea/workspace\.xml
