@@ -1,17 +1,17 @@
-'''
-Sources:
-http://opencv.willowgarage.com/documentation/python/cookbook.html
-http://www.lucaamore.com/?p=638
-'''
-
-#Python 2.7.2
-#Opencv 2.4.2
-#PIL 1.1.7
-
+# Imports
 import cv #Opencv
 from PIL import Image #Image from PIL
 import glob
 import os
+
+# Print library version
+#Python 2.7.2
+#Opencv 2.4.2
+#PIL 1.1.7
+
+# Conda environment
+# cv-2.4
+
 
 def DetectFace(image, faceCascade, returnImage=False):
     # This function takes a grey scale cv image and finds
