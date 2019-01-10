@@ -1,4 +1,4 @@
-# Using CPU if commented
+# Using CPU if NOT commented
 #import os
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -16,8 +16,9 @@ from keras.optimizers import Adadelta
 from sklearn.metrics import confusion_matrix, classification_report
 
 
-LOAD_WEIGHTS = False
-WEIGHTS_NAME = "facenality_weights-neutral-cropped.h5"
+LOAD_WEIGHTS = True
+WEIGHTS_NAME = "facenality_weights-neutral-corrected-data.h5"
+MODEL_NAME = "facenality-model-neutral-corrected.h5"
 IMAGE_SIZE = 224
 
 
@@ -35,12 +36,12 @@ def reset_keras():
 
 
 def import_data():
-    y_with_id = pd.read_json("dataset/all.json")
+    y_with_id = pd.read_json("../dataset/all.json")
     y = y_with_id.iloc[:, 0].values
     return y, y_with_id
 
 
-def load_train_data(y_with_id, image_size=IMAGE_SIZE, image_path="dataset/all-cropped/neutral/"):
+def load_train_data(y_with_id, image_size=IMAGE_SIZE, image_path="../dataset/all-cropped/neutral/"):
     x = []
 
     for i in y_with_id.id:
@@ -65,10 +66,10 @@ def create_model(image_size=IMAGE_SIZE):
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
 
-    number_of_layers = 16
+    number_of_layers = 4
 
     for i in range(number_of_layers):
-        model.add(Dense(units=2, kernel_initializer="uniform",
+        model.add(Dense(units=16, kernel_initializer="uniform",
                         activation="relu", input_dim=x.shape[1]))
         if number_of_layers == 8:
             model.add(Dropout(0.2))
@@ -95,18 +96,23 @@ def train_model(batch_size=30, nb_epoch=20):
     if LOAD_WEIGHTS:
         model.load_weights(WEIGHTS_NAME)
     else:
-        model.fit(X_train, y_train, epochs=500, batch_size=40)
+        model.fit(X_train, y_train, epochs=200, batch_size=40)
         model.save_weights(WEIGHTS_NAME)
 
+    # Save the model
+    #model.save(MODEL_NAME)
+
     # evaluate the model
-    scores = model.evaluate(X_test, y_test)
-    print("Evaluation score: ", scores)
+    scores_train = model.evaluate(X_train, y_train)
+    scores_test = model.evaluate(X_test, y_test)
+    print("Evaluation score Train: ", scores_train)
+    print("Evaluation score Test: ", scores_test)
 
     return model
 
 
 def predict(model, y):
-    X_test = read_img("dataset/test/neutral/93.jpg", IMAGE_SIZE)
+    X_test = read_img("../dataset/test/neutral/93.jpg", IMAGE_SIZE)
     X_test = np.expand_dims(X_test, axis=0)
 
     y_pred_detailed = model.predict(X_test)
@@ -120,7 +126,7 @@ def predict(model, y):
     print("y_test: ", y[45])
 
 
-def predict_batch(model, image_path="dataset/predict/"):
+def predict_batch(model, image_path="../dataset/predict/"):
     # READ DATA
     start = 179
     end = 189
@@ -135,8 +141,8 @@ def predict_batch(model, image_path="dataset/predict/"):
         X_test.append(image)
 
     X_test = np.array(X_test)
-    y_test_id = pd.read_json("dataset/predict.json")
-    y_test = pd.read_json("dataset/predict.json").iloc[:, 0].values
+    y_test_id = pd.read_json("../dataset/predict.json")
+    y_test = pd.read_json("../dataset/predict.json").iloc[:, 0].values
     y_test = y_test.tolist()
 
     # PREDICT DATA
@@ -156,6 +162,9 @@ def predict_batch(model, image_path="dataset/predict/"):
         print("y_pred", n, " : ", temp)
         print("\n")
         n += 1
+    
+    scores_pred = model.evaluate(X_test, y_pred_detailed)
+    print("Evaluation score Prediction: ", scores_pred)
 
 
 if __name__ == "__main__":
