@@ -18,7 +18,7 @@ from sklearn.metrics import confusion_matrix, classification_report
 
 LOAD_WEIGHTS = True
 WEIGHTS_NAME = "facenality_weights-neutral-corrected-data.h5"
-MODEL_NAME = "facenality-model-neutral-corrected.h5"
+MODEL_NAME = "facenality-model-neutral-corrected-new-save.h5"
 IMAGE_SIZE = 224
 
 
@@ -61,8 +61,8 @@ def read_img(path, image_size=IMAGE_SIZE):
 def create_model(image_size=IMAGE_SIZE):
     model = Sequential()
 
-    model.add(Conv2D(32, (3, 3), input_shape=(
-        image_size, image_size, 3), activation="relu"))
+    model.add(Conv2D(32, (3, 3),
+                     input_shape=(image_size, image_size, 3), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Flatten())
 
@@ -174,8 +174,11 @@ if __name__ == "__main__":
 
     reset_keras()
     model = train_model()
-
-    predict_batch(model)
+    
+    # 29.01 save again for test
+    model.save(MODEL_NAME)
+    
+    #predict_batch(model)
 
 # def predict():
 #     # As provided by ID 45
