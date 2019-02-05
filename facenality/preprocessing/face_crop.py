@@ -113,8 +113,7 @@ def test(imageFilePath):
     # Select one of the haarcascade files:
     #   haarcascade_frontalface_alt.xml  <-- Best one?
     #   haarcascade_frontalface_alt2.xml
-    #   haarcascade_frontalface_alt_tree.xml
-    #   haarcascade_frontalface_default.xml
+    #   haarcascade_frontalface_alt_tree.xml haarcascade_frontalface_default.xml
     #   haarcascade_profileface.xml
     faceCascade = cv.Load('haarcascade_frontalface_alt.xml')
     face_im=DetectFace(cv_im,faceCascade, returnImage=True)
@@ -127,7 +126,7 @@ def test(imageFilePath):
 
 # Crop all jpegs in a folder. Note: the code uses glob which follows unix shell rules.
 # Use the boxScale to scale the cropping area. 1=opencv box, 2=2x the width and height
-faceCrop('dataset/all/neutral/cropped/*.jpg', boxScale=1)
-faceCrop('dataset/all/happy/cropped/*.jpg', boxScale=1)
-faceCrop('dataset/all/sad/cropped/*.jpg', boxScale=1)
-faceCrop('dataset/all/random/cropped/*.jpg', boxScale=1)
+faceCrop('../../dataset/predict-cropped/neutral/*.jpg', boxScale=1)
+faceCrop('../../dataset/predict-cropped/happy/*.jpg', boxScale=1)
+faceCrop('../../dataset/predict-cropped/sad/*.jpg', boxScale=1)
+faceCrop('../../dataset/predict-cropped/random/*.jpg', boxScale=1)
