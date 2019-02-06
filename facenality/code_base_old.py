@@ -1,6 +1,6 @@
 # Using GPU if commented
-#import os
-#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import numpy as np
 import pandas as pd
@@ -12,7 +12,7 @@ from sklearn.cross_validation import train_test_split
 from keras.preprocessing import image
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
-from keras.optimizers import Adadelta
+from keras.optimizers import Adadelta, Adam
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics import mean_squared_error
     
@@ -20,18 +20,18 @@ from sklearn.metrics import mean_squared_error
 LOAD_WEIGHTS = False
 
 EXPRESSION = "neutral"
-DATE = "05-02-2019"
+DATE = "06-02-2019"
+DESCRIPTION = "vgg16-1"
+WEIGHTS_NAME = "facenality-weights-" + EXPRESSION + "-" + DATE + "-" + DESCRIPTION + ".h5"
+MODEL_NAME = "facenality-model-" + EXPRESSION + "-" + DATE + "-" + DESCRIPTION +".h5"
 
-WEIGHTS_NAME = "facenality-weights-" + EXPRESSION + "-" + DATE + ".h5"
-MODEL_NAME = "facenality-model-" + EXPRESSION + "-" + DATE + ".h5"
 IMAGE_SIZE = 224
-
 HIDDEN_LAYERS = 5
+BATCH_SIZE = 32
+EPOCHS = 16
 
 
 # Reset Keras Session
-
-
 def reset_keras():
     sess = get_session()
     clear_session()
@@ -64,11 +64,11 @@ def read_img(path, image_size=IMAGE_SIZE):
     return image.img_to_array(img)
 
 
-def create_model(image_size=IMAGE_SIZE):
+def create_model():
     model = Sequential()
-
+ 
     model.add(Conv2D(32, (3, 3),
-                     input_shape=(image_size, image_size, 3), activation="relu"))
+                     input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Flatten())
@@ -80,13 +80,14 @@ def create_model(image_size=IMAGE_SIZE):
         if HIDDEN_LAYERS == 8:
             model.add(Dropout(0.2))
 
-    model.add(Dense(16))
+    model.add(Dense(16, activation="linear"))
 
+    #model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False))
     model.compile(loss='mean_squared_error', optimizer=Adadelta())
     return model
 
 
-def train_model(batch_size=30, nb_epoch=20):
+def train_model():
     y, y_with_id = import_data("../dataset/all.json")
     y = y.tolist()
     y = np.array(y)
@@ -102,7 +103,7 @@ def train_model(batch_size=30, nb_epoch=20):
     if LOAD_WEIGHTS:
         model.load_weights(WEIGHTS_NAME)
     else:
-        model.fit(X_train, y_train, epochs=200, batch_size=40)
+        model.fit(X_train, y_train, batch_size = BATCH_SIZE, epochs = EPOCHS)
         model.save_weights(WEIGHTS_NAME)
         model.save(MODEL_NAME)
 
@@ -279,8 +280,8 @@ if __name__ == "__main__":
     #y_avg = calculateAverage()
     
     #calculateRMSE_of_validation_and_average_values(y_avg, y_validation_with_id)
-
-    reset_keras()
+    
+    #reset_keras()
     model = train_model()
     model.summary()
         
