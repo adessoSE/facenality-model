@@ -20,13 +20,15 @@ from sklearn.metrics import mean_squared_error
 LOAD_WEIGHTS = False
 
 IMAGE_SIZE = 224
+COLOR_CHANNELS = 1
+
 HIDDEN_LAYERS = 5
 BATCH_SIZE = 10
 EPOCHS = 75
 
-EXPRESSION = "neutral"
+EXPRESSION = "random"
 DATE = "06-02-2019"
-DESCRIPTION = ""
+DESCRIPTION = "grayscale"
 WEIGHTS_NAME = "facenality-weights-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE )+ "-e-" + str(EPOCHS) + ".h5"
 MODEL_NAME = "facenality-model-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE) + "-e-" + str(EPOCHS) + ".h5"
 
@@ -58,7 +60,12 @@ def load_train_data(y_with_id, image_path, image_size=IMAGE_SIZE):
 
 
 def read_img(path, image_size=IMAGE_SIZE):
-    img = image.load_img(path, target_size=(image_size, image_size))
+    colorMode = "RGB"
+    
+    if(COLOR_CHANNELS == 1):
+        colorMode = "grayscale"
+        
+    img = image.load_img(path, color_mode = colorMode, target_size=(image_size, image_size))
     #img = np.expand_dims(img, axis = 0)
     return image.img_to_array(img)
 
@@ -67,7 +74,7 @@ def create_model():
     model = Sequential()
  
     model.add(Conv2D(32, (3, 3),
-                     input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), activation="relu"))
+                     input_shape=(IMAGE_SIZE, IMAGE_SIZE, COLOR_CHANNELS), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Flatten())
