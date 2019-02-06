@@ -2,5 +2,8 @@
 dataset/
 
 *.h5
+*.png
+*.npy
+*/workspace.xml
 
 \.idea/workspace\.xml

@@ -1,6 +1,6 @@
 # Using GPU if commented
-import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+#import os
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 import numpy as np
 import pandas as pd
@@ -19,17 +19,16 @@ from sklearn.metrics import mean_squared_error
 
 LOAD_WEIGHTS = False
 
-EXPRESSION = "neutral"
-DATE = "06-02-2019"
-DESCRIPTION = "vgg16-1"
-WEIGHTS_NAME = "facenality-weights-" + EXPRESSION + "-" + DATE + "-" + DESCRIPTION + ".h5"
-MODEL_NAME = "facenality-model-" + EXPRESSION + "-" + DATE + "-" + DESCRIPTION +".h5"
-
 IMAGE_SIZE = 224
 HIDDEN_LAYERS = 5
-BATCH_SIZE = 32
-EPOCHS = 16
+BATCH_SIZE = 10
+EPOCHS = 75
 
+EXPRESSION = "neutral"
+DATE = "06-02-2019"
+DESCRIPTION = ""
+WEIGHTS_NAME = "facenality-weights-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE )+ "-e-" + str(EPOCHS) + ".h5"
+MODEL_NAME = "facenality-model-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE) + "-e-" + str(EPOCHS) + ".h5"
 
 # Reset Keras Session
 def reset_keras():
@@ -82,8 +81,8 @@ def create_model():
 
     model.add(Dense(16, activation="linear"))
 
-    #model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False))
-    model.compile(loss='mean_squared_error', optimizer=Adadelta())
+    model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False))
+    #model.compile(loss='mean_squared_error', optimizer=Adadelta())
     return model
 
 
@@ -292,19 +291,35 @@ if __name__ == "__main__":
     rmse_average = []
     rmse_average_cropped = []
     
-    rmse_average.append(predict_batch(model, "../dataset/predict/neutral/"))
-    rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/neutral/", shouldPrint = True))
-
-    rmse_average.append(predict_batch(model, "../dataset/predict/happy/"))
-    rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/happy/", shouldPrint = True))
-
-    rmse_average.append(predict_batch(model, "../dataset/predict/sad/"))
-    rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/sad/", shouldPrint = True))
+    printPredictionBatch = False
     
-    rmse_average.append(predict_batch(model, "../dataset/predict/random/"))
-    rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/random/", shouldPrint = True))
+    if(printPredictionBatch):
+        rmse_average.append(predict_batch(model, "../dataset/predict/neutral/", shouldPrint = True))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/neutral/", shouldPrint = True))
     
-    print("Hidden layers: ", HIDDEN_LAYERS)
+        rmse_average.append(predict_batch(model, "../dataset/predict/happy/", shouldPrint = True))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/happy/", shouldPrint = True))
+    
+        rmse_average.append(predict_batch(model, "../dataset/predict/sad/", shouldPrint = True))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/sad/", shouldPrint = True))
+        
+        rmse_average.append(predict_batch(model, "../dataset/predict/random/", shouldPrint = True))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/random/", shouldPrint = True))
+    else:
+        rmse_average.append(predict_batch(model, "../dataset/predict/neutral/"))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/neutral/"))
+    
+        rmse_average.append(predict_batch(model, "../dataset/predict/happy/"))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/happy/"))
+    
+        rmse_average.append(predict_batch(model, "../dataset/predict/sad/"))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/sad/"))
+        
+        rmse_average.append(predict_batch(model, "../dataset/predict/random/"))
+        rmse_average_cropped.append(predict_batch(model, "../dataset/predict-cropped/random/"))
+    
+    
+    print("Hidden layers: ", HIDDEN_LAYERS, " Batch size: ", BATCH_SIZE, " Epochs: ", EPOCHS)
     print("\nRMSE averages for uncropped predictions with:    " + MODEL_NAME)
     print("neutral, happy, sad, random")
     print(str(rmse_average) + "\n")
