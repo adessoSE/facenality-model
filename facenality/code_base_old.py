@@ -18,19 +18,21 @@ from sklearn.metrics import mean_squared_error
     
 
 LOAD_WEIGHTS = False
+USE_VGG16 = False
+USE_ADAM = False
 
 IMAGE_SIZE = 224
-COLOR_CHANNELS = 1
+COLOR_CHANNELS = 3
 
 HIDDEN_LAYERS = 5
 BATCH_SIZE = 10
 EPOCHS = 75
 
-EXPRESSION = "random"
-DATE = "06-02-2019"
-DESCRIPTION = "grayscale"
-WEIGHTS_NAME = "facenality-weights-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE )+ "-e-" + str(EPOCHS) + ".h5"
-MODEL_NAME = "facenality-model-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE) + "-e-" + str(EPOCHS) + ".h5"
+EXPRESSION = "neutral"
+DATE = "07-02-2019"
+DESCRIPTION = ""
+WEIGHTS_NAME = "facenality-weights-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE )+ "-e-" + str(EPOCHS) + DESCRIPTION + ".h5"
+MODEL_NAME = "facenality-model-" + EXPRESSION + "-" + DATE + "-b-" + str(BATCH_SIZE) + "-e-" + str(EPOCHS) + DESCRIPTION + ".h5"
 
 # Reset Keras Session
 def reset_keras():
@@ -60,7 +62,7 @@ def load_train_data(y_with_id, image_path, image_size=IMAGE_SIZE):
 
 
 def read_img(path, image_size=IMAGE_SIZE):
-    colorMode = "RGB"
+    colorMode = "rgb"
     
     if(COLOR_CHANNELS == 1):
         colorMode = "grayscale"
@@ -72,7 +74,12 @@ def read_img(path, image_size=IMAGE_SIZE):
 
 def create_model():
     model = Sequential()
- 
+    
+    if(USE_VGG16):
+        from keras.applications import vgg16
+        vgg16 = vgg16.VGG16(include_top=False, input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3))
+        model.add(vgg16)
+    
     model.add(Conv2D(32, (3, 3),
                      input_shape=(IMAGE_SIZE, IMAGE_SIZE, COLOR_CHANNELS), activation="relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
@@ -88,8 +95,10 @@ def create_model():
 
     model.add(Dense(16, activation="linear"))
 
-    model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False))
-    #model.compile(loss='mean_squared_error', optimizer=Adadelta())
+    if(USE_ADAM):
+        model.compile(loss='mean_squared_error', optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False))
+    else:
+        model.compile(loss='mean_squared_error', optimizer=Adadelta())
     return model
 
 
