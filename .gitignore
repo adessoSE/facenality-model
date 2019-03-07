@@ -1,5 +1,8 @@
 
 dataset/
+media/
+models/
+weights/
 
 *.h5
 *.png

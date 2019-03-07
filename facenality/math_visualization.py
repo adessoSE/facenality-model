@@ -38,15 +38,26 @@ def calculate_variance_and_std(input_data, calculate_whole_list = True, list_siz
         
     return np.array(variance), np.array(std)
 
+def return_list_rmse_per_trait(prediction, validation, validation_size = 10):
+    rmse_per_trait = []
+    i = 0
+
+    while i < validation_size:
+        rmse_per_trait.append(calculateRMSE(prediction[:, i], validation[:, i]))
+        i += 1
+
+    return np.array(rmse_per_trait)
+
 
 if __name__ == "__main__":
-    y, y_with_id = import_data("../dataset/all.json")
+    y, y_with_id = import_data("../dataset/predict.json")
     y = y.tolist()
     y = np.array(y)
     
-    traits = extract_trait_values_to_list(y)
-    traits_average = np.average(y, axis=0)
-    traits_variance, traits_std = calculate_variance_and_std(traits)
+    traits_to_predict = extract_trait_values_to_list(y)
+    traits_average_to_predict = np.average(y, axis=0)
+    traits_variance_to_predict, traits_std_to_predict = calculate_variance_and_std(traits_to_predict)
     
-    traits_variance_average = np.average(traits_variance)
-    traits_std_average = np.average(traits_std)
+    traits_variance_average_to_predict = np.average(traits_variance_to_predict)
+    traits_std_average_to_predict = np.average(traits_std_to_predict)
+    
