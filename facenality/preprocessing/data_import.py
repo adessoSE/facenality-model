@@ -1,5 +1,5 @@
 # Imports
-from facenality.preprocessing import image_utils as iu
+from . import image_utils as iu
 
 import numpy as np
 import pandas as pd

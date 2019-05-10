@@ -1,5 +1,5 @@
 # Imports
-from facenality import constants as c
+import constants as c
 from keras.preprocessing import image
 # Print library version
 
