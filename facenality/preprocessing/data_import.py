@@ -1,16 +1,11 @@
-# Imports
 from . import image_utils as iu
 
 import numpy as np
 import pandas as pd
 
-# Print library version
 
-# Conda environment
-
-
-# Import image data x
-def import_x_as_np_array(folder_path, y_id_list):
+# Import image data x to corresponding list of given IDs
+def import_x(folder_path, y_id_list):
     x = []
 
     for i in y_id_list:
@@ -21,7 +16,7 @@ def import_x_as_np_array(folder_path, y_id_list):
     return x
 
 
-# Import questionnaire data y and a list of its ids
+# Import questionnaire data y and a list of its IDs from a JSON file
 def import_y(file_path_json):
     y_id_list = pd.read_json(file_path_json)
     y = y_id_list.iloc[:, 0].values
