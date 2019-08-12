@@ -189,7 +189,14 @@ def predict(model, y, image_path):
 
     print("y_pred: ", y_pred)
     print("y_test: ", y[45])
+    
+    
+def predictNoY(model, image_path):
+    X_test = read_img(image_path, IMAGE_SIZE)
+    X_test = np.expand_dims(X_test, axis=0)
 
+    return model.predict(X_test)
+    
 
 # Vorher nicht gecroppte Bilder verwendet
 def predict_batch(model, image_path, shouldPrint = False):
@@ -547,6 +554,8 @@ if __name__ == "__main__":
     # 29.01 save again for test
     #model.save(MODEL_NAME)
     #printModel()
+    
+    a_single_prediction = predictNoY(model, "../dataset/all-cropped/neutral/1.jpg")
     
     rmse_average = []
     rmse_average_cropped = []
