@@ -6,16 +6,14 @@ Created on Mon Aug 12 12:43:27 2019
 """
 import numpy as np
 from preprocessing import data_import as di
+from constants import TRAITS, TRAIT_TRESHHOLDS
 from math_visualization import extract_trait_values_to_list
 from shutil import copyfile, copy
-
-traits = ["A-Warmth", "B-Reasoning", "C-Emotional-Stability", "E-Dominance", "F-Liveliness", "G-Rule-Consciousness", "H-Social-Boldness", "I-Sensitivity", "L-Vigilance", "M-Abstractedness", "N-Privateness", "O-Apprehension", "Q1-Openness-to-Change", "Q2-Self-Reliance", "Q3-Perfectionism", "Q4-Tension"]
 
 expression = "/neutral/"
 path_images = "../dataset/all-cropped" + expression
 path_json_train = "../dataset/y_train.json"
 path_json_validation = "../dataset/y_validation.json"
-trait_treshholds = ["3.9", "3.7", "3.6", "3.7", "3.4", "3.3", "3.3", "3.7", "2.8", "3.7", "3", "3.2", "4", "3.4", "3.3", "2.7"]
 
 
 def distribute_images_onto_classification_folders(trait_values, y_id_list, train_or_validation):
@@ -24,9 +22,9 @@ def distribute_images_onto_classification_folders(trait_values, y_id_list, train
         id_counter = 0
         for value in trait_values[i]:
             copy_image_source_path = "../dataset/all-cropped/neutral/" + str(y_id_list[id_counter]) + ".jpg"
-            copy_image_destination_path = "../dataset/classification/" + train_or_validation + "/" + traits[i]
+            copy_image_destination_path = "../dataset/classification/" + train_or_validation + "/" + TRAITS[i]
             
-            if value >= np.float64(trait_treshholds[i]):
+            if value >= np.float64(TRAIT_TRESHHOLDS[i]):
                 copy_image_destination_path += "/high-range"
             else:
                 copy_image_destination_path += "/low-range"
